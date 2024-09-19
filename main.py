@@ -5,6 +5,9 @@ from fastapi.responses import JSONResponse
 app = FastAPI()
 
 @app.post("/")
+async def get_root():
+    return {"message": "GET request is working"}
+
 async def handle_request(request: Request):
     # Retrieve the JSON data from the request
     payload = await request.json()
