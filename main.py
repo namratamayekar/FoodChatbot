@@ -5,6 +5,8 @@ import db_helper
 
 app = FastAPI()
 
+inprogress_orders = {}
+
 # GET request handler
 @app.get("/")
 async def get_root():
@@ -18,11 +20,26 @@ async def handle_request(request: Request):
     parameters = payload['queryResult']['parameters']
     output_contexts = payload['queryResult']['outputContexts']
 
-    if intent == "track.order - context: ongoing-tracking":
-        return track_order(parameters)
-    else:
-        return JSONResponse(content={"fulfillmentText": "Intent not recognized."})
+    intent_handler_dict = {
+        'order.add - context: ongoing-order': add_to_order,
+        #'order.remove - context: ongoing-order': remove_from_order,
+        #'order.complete - context: ongoing-order': complete_order,
+        'track.order - context: ongoing-tracking': track_order
+    }
+    return intent_handler_dict[intent](parameters)
 
+def add_to_order(parameters: dict):
+    food_items = parameters["food-item"]
+    quantities = parameters["number"]
+
+    if len(food_items) != len(quantities):
+        fulfillment_text = "Sorry I didn't understand. Can you please specify food items and quantities clearly?"
+    else:
+        fulfillment_text = f"Recieved {food_items} and {quantities} in the backend"
+
+    return JSONResponse(content={
+        "fulfillmentText": fulfillment_text
+    })
 
 def track_order(parameters: dict):
     print("Parameters in track_order:", parameters)  
