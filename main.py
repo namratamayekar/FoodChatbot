@@ -30,6 +30,28 @@ async def handle_request(request: Request):
     }
     return intent_handler_dict[intent](parameters, session_id)
 
+def complete_order(parameters: dict, session_id: str):
+    if session_id not in inprogress_orders:
+        fulfillment_text = "I'm having a trouble finding your order. Sorry! Can you place a new order please?"
+    else:
+        order = inprogress_orders[session_id]
+        order_id = save_to_db(order)
+        if order_id == -1:
+            fulfillment_text = "Sorry, I couldn't process your order due to a backend error. " \
+                               "Please place a new order again"
+        else:
+            order_total = db_helper.get_total_order_price(order_id)
+
+            fulfillment_text = f"Awesome. We have placed your order. " \
+                           f"Here is your order id # {order_id}. " \
+                           f"Your order total is {order_total} which you can pay at the time of delivery!"
+
+        del inprogress_orders[session_id]
+
+    return JSONResponse(content={
+        "fulfillmentText": fulfillment_text
+    })
+
 def add_to_order(parameters: dict, session_id: str):
     food_items = parameters["food-item"]
     quantities = parameters["number"]
@@ -53,7 +75,7 @@ def add_to_order(parameters: dict, session_id: str):
         "fulfillmentText": fulfillment_text
     })
 
-def track_order(parameters: dict):
+def track_order(parameters: dict, session_id: str):
     print("Parameters in track_order:", parameters)  
 
     order_id_key = 'number'  
