@@ -24,8 +24,8 @@ async def handle_request(request: Request):
 
     intent_handler_dict = {
         'order.add - context: ongoing-order': add_to_order,
-        #'order.remove - context: ongoing-order': remove_from_order,
-        #'order.complete - context: ongoing-order': complete_order,
+        'order.remove - context: ongoing-order': remove_from_order,
+        'order.complete - context: ongoing-order': complete_order,
         'track.order - context: ongoing-tracking': track_order
     }
     return intent_handler_dict[intent](parameters, session_id)
