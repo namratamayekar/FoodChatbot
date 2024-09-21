@@ -40,6 +40,21 @@ def insert_order_item(food_item, quantity, order_id):
         cnx.rollback()
 
         return -1
+    
+def get_total_order_price(order_id):
+    cursor = cnx.cursor()
+
+    # Executing the SQL query to get the total order price
+    query = f"SELECT get_total_order_price({order_id})"
+    cursor.execute(query)
+
+    # Fetching the result
+    result = cursor.fetchone()[0]
+
+    # Closing the cursor
+    cursor.close()
+
+    return result
 
 # Function to get the next available order_id
 def get_next_order_id():
